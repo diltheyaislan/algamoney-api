@@ -1,14 +1,16 @@
 package com.algaworks.algamoney.api.algamoneyapi.resource;
 
-import java.net.URI;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.algaworks.algamoney.api.algamoneyapi.event.CreatedResourceEvent;
 import com.algaworks.algamoney.api.algamoneyapi.model.Person;
 import com.algaworks.algamoney.api.algamoneyapi.repository.PersonRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/people")
@@ -26,6 +27,9 @@ public class PersonResource {
 	
 	@Autowired
 	private PersonRepository PersonRepository;
+
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@GetMapping
 	public List<Person> list() {
@@ -37,16 +41,11 @@ public class PersonResource {
 	public ResponseEntity<Person> create(
 		@Valid
 		@RequestBody 
-		Person Person) {
-		Person newPerson = PersonRepository.save(Person);
-		
-		URI uri = ServletUriComponentsBuilder
-			.fromCurrentRequestUri()
-			.path("/{id}")
-			.buildAndExpand(newPerson.getId())
-			.toUri();
-
-		return ResponseEntity.created(uri).body(newPerson);
+		Person person,
+		HttpServletResponse response) {
+		Person newPerson = PersonRepository.save(person);	
+		publisher.publishEvent(new CreatedResourceEvent(this, response, newPerson.getId()));
+		return ResponseEntity.status(HttpStatus.CREATED).body(newPerson);
 	}
 
 	@GetMapping("/{id}")
