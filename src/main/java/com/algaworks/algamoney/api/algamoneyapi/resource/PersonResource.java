@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,14 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PersonResource {
 	
 	@Autowired
-	private PersonRepository PersonRepository;
+	private PersonRepository personRepository;
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
 
 	@GetMapping
 	public List<Person> list() {
-		return PersonRepository.findAll();
+		return personRepository.findAll();
 	}
 
 	@PostMapping
@@ -43,16 +44,22 @@ public class PersonResource {
 		@RequestBody 
 		Person person,
 		HttpServletResponse response) {
-		Person newPerson = PersonRepository.save(person);	
+		Person newPerson = personRepository.save(person);	
 		publisher.publishEvent(new CreatedResourceEvent(this, response, newPerson.getId()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(newPerson);
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Person> findById(@PathVariable Long id) {
-		return PersonRepository
+		return personRepository
 			.findById(id)
 			.map(categoria -> ResponseEntity.ok(categoria))
 			.orElse(ResponseEntity.notFound().build());
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Long id) {
+		 personRepository.deleteById(id);
 	}
 }
