@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import com.algaworks.algamoney.api.algamoneyapi.event.CreatedResourceEvent;
 import com.algaworks.algamoney.api.algamoneyapi.model.Category;
 import com.algaworks.algamoney.api.algamoneyapi.repository.CategoryRepository;
+import com.algaworks.algamoney.api.algamoneyapi.service.CategoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,6 +30,9 @@ public class CategoryResource {
 	
 	@Autowired
 	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private CategoryService categoryService;
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -61,5 +66,10 @@ public class CategoryResource {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
 		categoryRepository.deleteById(id);
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category person) {
+		return ResponseEntity.ok(categoryService.updateCategory(id, person));
 	}
 }
