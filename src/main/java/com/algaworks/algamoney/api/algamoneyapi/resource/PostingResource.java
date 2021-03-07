@@ -10,6 +10,7 @@ import com.algaworks.algamoney.api.algamoneyapi.event.CreatedResourceEvent;
 import com.algaworks.algamoney.api.algamoneyapi.exceptionhandler.AlgamoneyExceptionHandler;
 import com.algaworks.algamoney.api.algamoneyapi.model.Posting;
 import com.algaworks.algamoney.api.algamoneyapi.repository.PostingRepository;
+import com.algaworks.algamoney.api.algamoneyapi.repository.filter.PostingFilter;
 import com.algaworks.algamoney.api.algamoneyapi.service.PostingService;
 import com.algaworks.algamoney.api.algamoneyapi.service.exception.NonexistentOrInactivePersonException;
 
@@ -46,8 +47,8 @@ public class PostingResource {
 	private MessageSource messageSource;
 
 	@GetMapping
-	public List<Posting> list() {
-		return postingRepository.findAll();
+	public List<Posting> search(PostingFilter filter) {
+		return postingRepository.filter(filter);
 	}
 
 	@PostMapping
