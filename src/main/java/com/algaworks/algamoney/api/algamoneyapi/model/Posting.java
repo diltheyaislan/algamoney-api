@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "posting")
@@ -22,25 +23,31 @@ public class Posting {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NotNull
 	private String description;
-
+	
+	@NotNull
 	@Column(name = "due_date")
 	private LocalDate dueDate;
-
+	
 	@Column(name = "payment_date")
 	private LocalDate paymentDate;
-
+	
+	@NotNull
 	private BigDecimal amount;
-
+	
 	private String note;
-
+	
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	private PostingType type;
-
+	
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "id_category")
 	private Category category;
 	
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "id_person")
 	private Person person;
