@@ -74,7 +74,7 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
 		return errors;
 	}
 
-	private static class Error {
+	public static class Error {
 
 		private String message;
 		private String detailS;
