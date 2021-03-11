@@ -15,6 +15,9 @@ import com.algaworks.algamoney.api.algamoneyapi.model.Posting;
 import com.algaworks.algamoney.api.algamoneyapi.repository.filter.PostingFilter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 public class PostingRepositoryImpl implements PostingRepositoryQuery {
 
@@ -22,7 +25,7 @@ public class PostingRepositoryImpl implements PostingRepositoryQuery {
 	private EntityManager manager;
 
 	@Override
-	public List<Posting> filter(PostingFilter filter) {
+	public Page<Posting> filter(PostingFilter filter, Pageable pageable) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Posting> criteria = builder.createQuery(Posting.class);
 
@@ -31,7 +34,9 @@ public class PostingRepositoryImpl implements PostingRepositoryQuery {
 		criteria.where(predicates);
 
 		TypedQuery<Posting> query = manager.createQuery(criteria);
-		return query.getResultList();
+		addPaginationRestriction(query, pageable);
+
+		return new PageImpl<>(query.getResultList(), pageable, count(filter));
 	}
 
 	private Predicate[] createRestrictions(PostingFilter filter, CriteriaBuilder builder, Root<Posting> root) {
@@ -57,5 +62,25 @@ public class PostingRepositoryImpl implements PostingRepositoryQuery {
 		}
 
 		return predicates.toArray(new Predicate[predicates.size()]);
+	}
+
+	private void addPaginationRestriction(TypedQuery<Posting> query, Pageable pageable) {
+		int currentPage = pageable.getPageNumber();
+		int itemsPerPage = pageable.getPageSize();
+		int offset = currentPage * itemsPerPage;
+		query.setFirstResult(offset);
+		query.setMaxResults(itemsPerPage);
+	}
+
+	private Long count(PostingFilter filter) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+		Root<Posting> root = criteria.from(Posting.class);
+
+		Predicate[] predicates = createRestrictions(filter, builder, root);
+		criteria.where(predicates);
+
+		criteria.select(builder.count(root));
+		return manager.createQuery(criteria).getSingleResult();
 	}
 }
