@@ -1,9 +1,7 @@
 package com.algaworks.algamoney.api.algamoneyapi.token;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.servlet.Filter;
